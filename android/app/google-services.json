@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "411652419126",
+    "project_id": "posts-app-e1dff",
+    "storage_bucket": "posts-app-e1dff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411652419126:android:fd6bf879da2aefe4a33297",
+        "android_client_info": {
+          "package_name": "com.gasim.posts_task"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "411652419126-gvl7i7f83tpoa6ab6uuaj8ms6kk9osnr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAegE0_AkfUbxZ7oj9VOIkLowxHr0h3q1s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "411652419126-gvl7i7f83tpoa6ab6uuaj8ms6kk9osnr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
