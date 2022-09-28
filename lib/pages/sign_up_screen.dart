@@ -65,7 +65,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   showSpinner = true;
                 });
                 try {
-                  print('${email} ${password}');
                   final newUser = await _auth.createUserWithEmailAndPassword(
                       email: email, password: password);
 

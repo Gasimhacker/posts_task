@@ -26,8 +26,8 @@ class LoginRegisterButton extends StatelessWidget {
             onPressed!();
           }
         },
-        child: Text(title),
         color: color ?? Color(0xffFCB547),
+        child: Text(title),
       ),
     );
   }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:posts_task/components/login_register.dart';
 import 'package:posts_task/constants.dart';

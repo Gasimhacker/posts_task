@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:posts_task/components/anonymous_avatar.dart';
+import 'package:posts_task/components/post_ui.dart';
 import 'package:posts_task/components/login_register.dart';
 import 'package:posts_task/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:math' as math;
+import 'package:posts_task/services/models.dart';
 
 final _fireStore = FirebaseFirestore.instance;
 User? loggedInUser;
@@ -67,12 +66,9 @@ class _PostsScreenState extends State<PostsScreen> {
                         color: KThemeColor,
                         onPressed: () async {
                           postController.clear();
-                          await _fireStore.collection('users').add({
+                          await _fireStore.collection('postWithComments').add({
+                            'poster': loggedInUser?.email,
                             'post': post,
-                            'username': loggedInUser?.email,
-                          });
-                          await _fireStore.collection('users').add({
-                            'username': loggedInUser,
                           });
                         },
                       ),
@@ -94,109 +90,74 @@ class _PostsScreenState extends State<PostsScreen> {
   }
 }
 
-class Post extends StatelessWidget {
-  final postContent;
-  final userName;
-  Post({this.postContent, this.userName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-        elevation: 0,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  width: 8,
-                ),
-                AnonymousAvatar(
-                  backgroundColor: KThemeColor,
-                  radius: 20,
-                  iconColor: Colors.white,
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                Text(
-                  userName,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                '${postContent}',
-                textAlign: TextAlign.start,
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  'comments',
-                  style: TextStyle(color: Colors.grey[600]),
-                )
-              ],
-            ),
-            Divider(
-              thickness: 2,
-            ),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  style: ButtonStyle(
-                      elevation: MaterialStateProperty.all(0),
-                      backgroundColor: MaterialStateProperty.all(Colors.white)),
-                  onPressed: () {},
-                  icon: Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.rotationY(math.pi),
-                    child: Icon(
-                      Icons.mode_comment_outlined,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  label: Text(
-                    'comment',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.grey[600]),
-                  ),
-                )
-              ],
-            )
-          ],
-        ));
-  }
-}
-
 class PostsStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-        stream: _fireStore.collection('users').snapshots(),
+        stream: _fireStore.collection('postWithComments').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(
               child: CircularProgressIndicator(),
             );
           }
+
           List<Widget> posts = [];
+
           final users = snapshot.data?.docs;
           for (var user in users!) {
             final Map userMap = user.data() as Map;
             final postContent = userMap['post'];
-            final username = userMap['username'];
+            final username = userMap['poster'];
+
+            var postId;
+            Future getPostId() async {
+              postId = await user.id;
+            }
+
+            Future<List<Comments>> getComments() async {
+              await getPostId();
+              final snapshot = await _fireStore
+                  .collection('postWithComments')
+                  .doc(postId)
+                  .collection('comments')
+                  .get();
+              final comments = snapshot.docs
+                  .map((comment) => Comments.fromJson(comment.data()))
+                  .toList();
+              return comments;
+            }
+
             final postWidget = Post(
+              onDeleteCommentPressed: (comment) async {
+                if (await _fireStore
+                        .collection('postWithComments')
+                        .doc(postId)
+                        .collection('comments')
+                        .doc()
+                        .id ==
+                    comment) {}
+              },
+              loadComments: getComments(),
+              addCommentFunctionality: (comment, commentController) async {
+                commentController.clear();
+                await getPostId();
+                await _fireStore
+                    .collection('postWithComments')
+                    .doc(postId)
+                    .collection('comments')
+                    .add({
+                  'comment': comment,
+                  'commenter': loggedInUser?.email,
+                });
+              },
+              onDeletePressed: () async {
+                await getPostId();
+                await _fireStore
+                    .collection('postWithComments')
+                    .doc(postId)
+                    .delete();
+              },
               userName: username,
               postContent: postContent,
             );

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:posts_task/constants.dart';
 
 class AnonymousAvatar extends StatelessWidget {
-  double? radius;
-  Color? backgroundColor;
-  Color? iconColor;
+  final double? radius;
+  final Color? backgroundColor;
+  final Color? iconColor;
 
   AnonymousAvatar({this.radius, this.backgroundColor, this.iconColor});
   @override
