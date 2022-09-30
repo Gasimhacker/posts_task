@@ -12,14 +12,12 @@ class Post extends StatefulWidget {
   final String? postContent;
   final String? userName;
   final Function()? onDeletePressed;
-  final Future Function(String, TextEditingController) addCommentFunctionality;
   final String postId;
   final bool isDeletePostVisible;
   Post(
       {this.postContent,
       this.userName,
       this.onDeletePressed,
-      required this.addCommentFunctionality,
       required this.postId,
       required this.isDeletePostVisible});
 
@@ -33,6 +31,7 @@ class _PostState extends State<Post> {
   String comment = '';
 
   final _auth = FirebaseAuth.instance;
+  int numberOfComments = 0;
 
   void getCurrentUser() async {
     final user = await _auth.currentUser;
@@ -104,7 +103,7 @@ class _PostState extends State<Post> {
                 onTap: () {
                   final Stream<QuerySnapshot> commentsStream =
                       _fireStore.collectionGroup(widget.postId).snapshots();
-
+                  setState(() {}); //to update the number of comments
                   showModalBottomSheet(
                       context: context,
                       builder: (context) {
@@ -113,13 +112,15 @@ class _PostState extends State<Post> {
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 final commentsDocs = snapshot.data?.docs;
+                                numberOfComments = commentsDocs!.length;
                                 List<Comment> commentsList = [];
-                                for (var commentDoc in commentsDocs!) {
+                                for (var commentDoc in commentsDocs) {
                                   final Map commentMap =
                                       commentDoc.data() as Map;
                                   final commentContent = commentMap['comment'];
                                   final commenter = commentMap['commenter'];
                                   final commentId = commentDoc.id;
+
                                   bool isDeleteCommentVisible = false;
                                   if (commenter == loggedInUser!.email) {
                                     isDeleteCommentVisible = true;
@@ -151,7 +152,7 @@ class _PostState extends State<Post> {
                       });
                 },
                 child: Text(
-                  'comments',
+                  '$numberOfComments comments',
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               )
@@ -176,8 +177,16 @@ class _PostState extends State<Post> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(
-                  onPressed: () {
-                    widget.addCommentFunctionality(comment, commentController);
+                  onPressed: () async {
+                    commentController.clear();
+                    await _fireStore
+                        .collection('postWithComments')
+                        .doc(widget.postId)
+                        .collection(widget.postId)
+                        .add({
+                      'comment': comment,
+                      'commenter': loggedInUser?.email,
+                    });
                   },
                   icon: Icon(Icons.send)),
             ],

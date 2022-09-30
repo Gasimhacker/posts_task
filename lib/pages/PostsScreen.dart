@@ -117,17 +117,6 @@ class PostsStream extends StatelessWidget {
             final postWidget = Post(
               isDeletePostVisible: isDeletePostVisible,
               postId: postId,
-              addCommentFunctionality: (comment, commentController) async {
-                commentController.clear();
-                await _fireStore
-                    .collection('postWithComments')
-                    .doc(postId)
-                    .collection(postId)
-                    .add({
-                  'comment': comment,
-                  'commenter': loggedInUser?.email,
-                });
-              },
               onDeletePressed: () async {
                 await _fireStore
                     .collection('postWithComments')
