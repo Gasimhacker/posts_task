@@ -103,56 +103,28 @@ class PostsStream extends StatelessWidget {
           }
 
           List<Widget> posts = [];
-
           final users = snapshot.data?.docs;
+
           for (var user in users!) {
             final Map userMap = user.data() as Map;
             final postContent = userMap['post'];
             final username = userMap['poster'];
-
-            var postId;
-            Future getPostId() async {
-              postId = await user.id;
-            }
-
-            Future<List<Comments>> getComments() async {
-              await getPostId();
-              final snapshot = await _fireStore
-                  .collection('postWithComments')
-                  .doc(postId)
-                  .collection('comments')
-                  .get();
-              final comments = snapshot.docs
-                  .map((comment) => Comments.fromJson(comment.data()))
-                  .toList();
-              return comments;
-            }
+            var postId = user.id;
 
             final postWidget = Post(
-              onDeleteCommentPressed: (comment) async {
-                if (await _fireStore
-                        .collection('postWithComments')
-                        .doc(postId)
-                        .collection('comments')
-                        .doc()
-                        .id ==
-                    comment) {}
-              },
-              loadComments: getComments(),
+              postId: postId,
               addCommentFunctionality: (comment, commentController) async {
                 commentController.clear();
-                await getPostId();
                 await _fireStore
                     .collection('postWithComments')
                     .doc(postId)
-                    .collection('comments')
+                    .collection(postId)
                     .add({
                   'comment': comment,
                   'commenter': loggedInUser?.email,
                 });
               },
               onDeletePressed: () async {
-                await getPostId();
                 await _fireStore
                     .collection('postWithComments')
                     .doc(postId)

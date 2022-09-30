@@ -1,25 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:posts_task/constants.dart';
 import 'package:posts_task/components/anonymous_avatar.dart';
 import 'package:posts_task/components/comment_ui.dart';
-import 'package:posts_task/services/models.dart';
+
+final _fireStore = FirebaseFirestore.instance;
 
 class Post extends StatelessWidget {
-  final commentController = TextEditingController();
   final String? postContent;
   final String? userName;
   final Function()? onDeletePressed;
   final Future Function(String, TextEditingController) addCommentFunctionality;
-  final Future<List<Comments>> loadComments;
-  final Function(Comments)? onDeleteCommentPressed;
+  final String postId;
+  Post({
+    this.postContent,
+    this.userName,
+    this.onDeletePressed,
+    required this.addCommentFunctionality,
+    required this.postId,
+  });
+
+  final commentController = TextEditingController();
+
   String comment = '';
-  Post(
-      {this.postContent,
-      this.userName,
-      this.onDeletePressed,
-      required this.addCommentFunctionality,
-      required this.loadComments,
-      required this.onDeleteCommentPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -72,27 +75,44 @@ class Post extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
+                  final Stream<QuerySnapshot> commentsStream =
+                      _fireStore.collectionGroup(postId).snapshots();
+
                   showModalBottomSheet(
-                    context: context,
-                    builder: (context) => FutureBuilder<List<Comments>>(
-                      builder: (context, snapshot) {
-                        return ListView.builder(
-                          itemBuilder: (BuildContext context, int index) {
-                            return Comment(
-                              comment: snapshot.data![index].comment,
-                              commenter: snapshot.data![index].commenter,
-                              onDeleteCommentPressed: () {
-                                onDeleteCommentPressed!(snapshot.data![index]);
-                              },
-                            );
-                          },
-                          itemCount:
-                              snapshot.hasData ? snapshot.data!.length : 0,
-                        );
-                      },
-                      future: loadComments,
-                    ),
-                  );
+                      context: context,
+                      builder: (context) {
+                        return StreamBuilder<QuerySnapshot>(
+                            stream: commentsStream,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final commentsDocs = snapshot.data?.docs;
+
+                                for (var commentDoc in commentsDocs!) {
+                                  final Map commentMap =
+                                      commentDoc.data() as Map;
+                                  final commentContent = commentMap['comment'];
+                                  final commenter = commentMap['commenter'];
+                                  return ListView.builder(
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      return Comment(
+                                        comment: commentContent,
+                                        commenter: commenter,
+                                        onDeleteCommentPressed: () {
+                                          commentsDocs.remove(commentDoc);
+                                        },
+                                      );
+                                    },
+                                    itemCount: commentsDocs.length,
+                                  );
+                                }
+                              }
+
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            });
+                      });
                 },
                 child: Text(
                   'comments',
