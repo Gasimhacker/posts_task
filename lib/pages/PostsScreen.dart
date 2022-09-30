@@ -4,7 +4,6 @@ import 'package:posts_task/components/post_ui.dart';
 import 'package:posts_task/components/login_register.dart';
 import 'package:posts_task/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:posts_task/services/models.dart';
 
 final _fireStore = FirebaseFirestore.instance;
 User? loggedInUser;
@@ -110,8 +109,13 @@ class PostsStream extends StatelessWidget {
             final postContent = userMap['post'];
             final username = userMap['poster'];
             var postId = user.id;
+            bool isDeletePostVisible = false;
+            if (username == loggedInUser!.email) {
+              isDeletePostVisible = true;
+            }
 
             final postWidget = Post(
+              isDeletePostVisible: isDeletePostVisible,
               postId: postId,
               addCommentFunctionality: (comment, commentController) async {
                 commentController.clear();

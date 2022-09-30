@@ -4,10 +4,12 @@ class Comment extends StatelessWidget {
   final String commenter;
   final String comment;
   final Function() onDeleteCommentPressed;
+  final bool isDeleteCommentVisible;
   Comment(
       {required this.commenter,
       required this.comment,
-      required this.onDeleteCommentPressed});
+      required this.onDeleteCommentPressed,
+      required this.isDeleteCommentVisible});
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -23,12 +25,15 @@ class Comment extends StatelessWidget {
                 Text(comment),
               ],
             ),
-            trailing: IconButton(
-                onPressed: onDeleteCommentPressed,
-                icon: Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                )),
+            trailing: Visibility(
+              visible: isDeleteCommentVisible,
+              child: IconButton(
+                  onPressed: onDeleteCommentPressed,
+                  icon: Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                  )),
+            ),
           ),
           Divider(
             thickness: 3,

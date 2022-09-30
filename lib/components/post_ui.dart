@@ -3,26 +3,50 @@ import 'package:flutter/material.dart';
 import 'package:posts_task/constants.dart';
 import 'package:posts_task/components/anonymous_avatar.dart';
 import 'package:posts_task/components/comment_ui.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 final _fireStore = FirebaseFirestore.instance;
+User? loggedInUser;
 
-class Post extends StatelessWidget {
+class Post extends StatefulWidget {
   final String? postContent;
   final String? userName;
   final Function()? onDeletePressed;
   final Future Function(String, TextEditingController) addCommentFunctionality;
   final String postId;
-  Post({
-    this.postContent,
-    this.userName,
-    this.onDeletePressed,
-    required this.addCommentFunctionality,
-    required this.postId,
-  });
+  final bool isDeletePostVisible;
+  Post(
+      {this.postContent,
+      this.userName,
+      this.onDeletePressed,
+      required this.addCommentFunctionality,
+      required this.postId,
+      required this.isDeletePostVisible});
 
+  @override
+  State<Post> createState() => _PostState();
+}
+
+class _PostState extends State<Post> {
   final commentController = TextEditingController();
 
   String comment = '';
+
+  final _auth = FirebaseAuth.instance;
+
+  void getCurrentUser() async {
+    final user = await _auth.currentUser;
+    if (user != null) {
+      loggedInUser = user;
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getCurrentUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +72,18 @@ class Post extends StatelessWidget {
                 width: 5,
               ),
               Text(
-                userName!,
+                widget.userName!,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              IconButton(
-                  onPressed: onDeletePressed,
-                  icon: Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                  ))
+              Visibility(
+                visible: widget.isDeletePostVisible,
+                child: IconButton(
+                    onPressed: widget.onDeletePressed,
+                    icon: Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    )),
+              )
             ],
           ),
           SizedBox(
@@ -65,7 +92,7 @@ class Post extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              postContent!,
+              widget.postContent!,
               textAlign: TextAlign.start,
               style: TextStyle(fontSize: 20),
             ),
@@ -76,7 +103,7 @@ class Post extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   final Stream<QuerySnapshot> commentsStream =
-                      _fireStore.collectionGroup(postId).snapshots();
+                      _fireStore.collectionGroup(widget.postId).snapshots();
 
                   showModalBottomSheet(
                       context: context,
@@ -86,28 +113,37 @@ class Post extends StatelessWidget {
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 final commentsDocs = snapshot.data?.docs;
-
+                                List<Comment> commentsList = [];
                                 for (var commentDoc in commentsDocs!) {
                                   final Map commentMap =
                                       commentDoc.data() as Map;
                                   final commentContent = commentMap['comment'];
                                   final commenter = commentMap['commenter'];
-                                  return ListView.builder(
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return Comment(
-                                        comment: commentContent,
-                                        commenter: commenter,
-                                        onDeleteCommentPressed: () {
-                                          commentsDocs.remove(commentDoc);
-                                        },
-                                      );
+                                  final commentId = commentDoc.id;
+                                  bool isDeleteCommentVisible = false;
+                                  if (commenter == loggedInUser!.email) {
+                                    isDeleteCommentVisible = true;
+                                  }
+                                  final commentWidget = Comment(
+                                    isDeleteCommentVisible:
+                                        isDeleteCommentVisible,
+                                    comment: commentContent,
+                                    commenter: commenter,
+                                    onDeleteCommentPressed: () {
+                                      _fireStore
+                                          .collection('postWithComments')
+                                          .doc(widget.postId)
+                                          .collection(widget.postId)
+                                          .doc(commentId)
+                                          .delete();
                                     },
-                                    itemCount: commentsDocs.length,
                                   );
+                                  commentsList.add(commentWidget);
                                 }
+                                return ListView(
+                                  children: commentsList,
+                                );
                               }
-
                               return Center(
                                 child: CircularProgressIndicator(),
                               );
@@ -141,7 +177,7 @@ class Post extends StatelessWidget {
             children: [
               IconButton(
                   onPressed: () {
-                    addCommentFunctionality(comment, commentController);
+                    widget.addCommentFunctionality(comment, commentController);
                   },
                   icon: Icon(Icons.send)),
             ],
