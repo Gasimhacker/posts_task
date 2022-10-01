@@ -74,8 +74,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   setState(() {
                     showSpinner = false;
                   });
-                } catch (e) {
-                  print(e);
+                } on FirebaseAuthException catch (e) {
+                  // Display something when auth error happens
+                  setState(() {
+                    showSpinner = false;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(e.message ?? e.code),
+                    ),
+                  );
                 }
               },
             )
