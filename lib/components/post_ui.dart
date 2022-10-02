@@ -31,7 +31,6 @@ class _PostState extends State<Post> {
   String comment = '';
 
   final _auth = FirebaseAuth.instance;
-  int numberOfComments = 0;
 
   void getCurrentUser() async {
     final user = await _auth.currentUser;
@@ -99,62 +98,76 @@ class _PostState extends State<Post> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              GestureDetector(
-                onTap: () {
-                  final Stream<QuerySnapshot> commentsStream =
-                      _fireStore.collectionGroup(widget.postId).snapshots();
-                  setState(() {}); //to update the number of comments
-                  showModalBottomSheet(
-                      context: context,
-                      builder: (context) {
-                        return StreamBuilder<QuerySnapshot>(
-                            stream: commentsStream,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                final commentsDocs = snapshot.data?.docs;
-                                numberOfComments = commentsDocs!.length;
-                                List<Comment> commentsList = [];
-                                for (var commentDoc in commentsDocs) {
-                                  final Map commentMap =
-                                      commentDoc.data() as Map;
-                                  final commentContent = commentMap['comment'];
-                                  final commenter = commentMap['commenter'];
-                                  final commentId = commentDoc.id;
+              StreamBuilder(
+                stream: _fireStore.collectionGroup(widget.postId).snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final numComments = snapshot.data!.size;
+                    return GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return StreamBuilder<QuerySnapshot>(
+                                  stream: _fireStore
+                                      .collectionGroup(widget.postId)
+                                      .snapshots(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      final commentsDocs = snapshot.data!.docs;
+                                      List<Comment> commentsList = [];
+                                      for (var commentDoc in commentsDocs) {
+                                        final Map commentMap =
+                                            commentDoc.data() as Map;
+                                        final commentContent =
+                                            commentMap['comment'];
+                                        final commenter =
+                                            commentMap['commenter'];
+                                        final commentId = commentDoc.id;
 
-                                  bool isDeleteCommentVisible = false;
-                                  if (commenter == loggedInUser!.email) {
-                                    isDeleteCommentVisible = true;
-                                  }
-                                  final commentWidget = Comment(
-                                    isDeleteCommentVisible:
-                                        isDeleteCommentVisible,
-                                    comment: commentContent,
-                                    commenter: commenter,
-                                    onDeleteCommentPressed: () {
-                                      _fireStore
-                                          .collection('postWithComments')
-                                          .doc(widget.postId)
-                                          .collection(widget.postId)
-                                          .doc(commentId)
-                                          .delete();
-                                    },
-                                  );
-                                  commentsList.add(commentWidget);
-                                }
-                                return ListView(
-                                  children: commentsList,
-                                );
-                              }
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
+                                        bool isDeleteCommentVisible = false;
+                                        if (commenter == loggedInUser!.email) {
+                                          isDeleteCommentVisible = true;
+                                        }
+                                        final commentWidget = Comment(
+                                          isDeleteCommentVisible:
+                                              isDeleteCommentVisible,
+                                          comment: commentContent,
+                                          commenter: commenter,
+                                          onDeleteCommentPressed: () {
+                                            _fireStore
+                                                .collection('postWithComments')
+                                                .doc(widget.postId)
+                                                .collection(widget.postId)
+                                                .doc(commentId)
+                                                .delete();
+                                          },
+                                        );
+                                        commentsList.add(commentWidget);
+                                      }
+                                      return ListView(
+                                        children: commentsList,
+                                      );
+                                    }
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  });
                             });
-                      });
+                      },
+                      child: Text(
+                        '$numComments comments',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    );
+                  } else {
+                    // if there's no data
+                    return Text(
+                      'no comments yet',
+                      style: TextStyle(color: Colors.grey[600]),
+                    );
+                  }
                 },
-                child: Text(
-                  '$numberOfComments comments',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
               )
             ],
           ),
