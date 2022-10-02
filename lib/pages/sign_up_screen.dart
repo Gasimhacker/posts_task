@@ -28,11 +28,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 60,
             ),
-            AnonymousAvatar(),
-            SizedBox(height: 30),
+            const AnonymousAvatar(),
+            const SizedBox(height: 30),
             Padding(
               padding: kTextFieldPadding,
               child: TextField(
@@ -59,7 +59,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             LoginRegisterButton(
               route: PostsScreen.id,
               title: 'Sign up',
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 90),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 90),
               onPressed: () async {
                 setState(() {
                   showSpinner = true;

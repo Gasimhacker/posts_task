@@ -28,14 +28,15 @@ class Comment extends StatelessWidget {
             trailing: Visibility(
               visible: isDeleteCommentVisible,
               child: IconButton(
-                  onPressed: onDeleteCommentPressed,
-                  icon: Icon(
-                    Icons.delete,
-                    color: Colors.red,
-                  )),
+                onPressed: onDeleteCommentPressed,
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
+              ),
             ),
           ),
-          Divider(
+          const Divider(
             thickness: 3,
           ),
         ],

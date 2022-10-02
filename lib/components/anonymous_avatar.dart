@@ -6,7 +6,8 @@ class AnonymousAvatar extends StatelessWidget {
   final Color? backgroundColor;
   final Color? iconColor;
 
-  const AnonymousAvatar({super.key, this.radius, this.backgroundColor, this.iconColor});
+  const AnonymousAvatar(
+      {super.key, this.radius, this.backgroundColor, this.iconColor});
   @override
   Widget build(BuildContext context) {
     return Flexible(

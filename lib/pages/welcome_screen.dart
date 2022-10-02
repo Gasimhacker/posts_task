@@ -17,17 +17,17 @@ class WelcomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 60,
             ),
-            AnonymousAvatar(),
-            Center(
+            const AnonymousAvatar(),
+            const Center(
               child: Text(
                 'Welcome',
                 style: kWelcomeTextStyle,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             LoginRegisterButton(

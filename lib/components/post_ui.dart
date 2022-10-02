@@ -54,38 +54,38 @@ class _PostState extends State<Post> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Row(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 8,
               ),
-              AnonymousAvatar(
+              const AnonymousAvatar(
                 backgroundColor: kThemeColor,
                 radius: 20,
                 iconColor: Colors.white,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 5,
               ),
               Text(
                 widget.userName!,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               Visibility(
                 visible: widget.isDeletePostVisible,
                 child: IconButton(
                     onPressed: widget.onDeletePressed,
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.delete,
                       color: Colors.red,
                     )),
               )
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Padding(
@@ -93,7 +93,7 @@ class _PostState extends State<Post> {
             child: Text(
               widget.postContent!,
               textAlign: TextAlign.start,
-              style: TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             ),
           ),
           Row(
@@ -145,7 +145,7 @@ class _PostState extends State<Post> {
                                   children: commentsList,
                                 );
                               }
-                              return Center(
+                              return const Center(
                                 child: CircularProgressIndicator(),
                               );
                             });
@@ -158,7 +158,7 @@ class _PostState extends State<Post> {
               )
             ],
           ),
-          Divider(
+          const Divider(
             thickness: 2,
           ),
           TextField(
@@ -166,7 +166,7 @@ class _PostState extends State<Post> {
             onChanged: (value) {
               comment = value;
             },
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Write a comment...',
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,
@@ -188,7 +188,7 @@ class _PostState extends State<Post> {
                       'commenter': loggedInUser?.email,
                     });
                   },
-                  icon: Icon(Icons.send)),
+                  icon: const Icon(Icons.send)),
             ],
           )
         ],

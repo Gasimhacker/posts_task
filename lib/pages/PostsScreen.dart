@@ -47,7 +47,7 @@ class _PostsScreenState extends State<PostsScreen> {
                     onChanged: (value) {
                       post = value;
                     },
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'What\'s on your mind ?',
                       border: OutlineInputBorder(
                         borderSide: BorderSide.none,
@@ -58,7 +58,7 @@ class _PostsScreenState extends State<PostsScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       LoginRegisterButton(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           right: 0,
                         ),
                         title: 'Post',
@@ -76,7 +76,7 @@ class _PostsScreenState extends State<PostsScreen> {
                 ],
               ),
             ),
-            Divider(
+            const Divider(
               height: 9,
               thickness: 8,
               color: Colors.grey,
@@ -96,7 +96,7 @@ class PostsStream extends StatelessWidget {
         stream: _fireStore.collection('postWithComments').snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
