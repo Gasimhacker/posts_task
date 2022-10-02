@@ -32,16 +32,14 @@ class _PostState extends State<Post> {
 
   final _auth = FirebaseAuth.instance;
 
-  void getCurrentUser() async {
-    final user = await _auth.currentUser;
-    if (user != null) {
-      loggedInUser = user;
+  void getCurrentUser() {
+    if (_auth.currentUser != null) {
+      loggedInUser = _auth.currentUser;
     }
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getCurrentUser();
   }
