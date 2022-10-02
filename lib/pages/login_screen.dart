@@ -65,25 +65,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 setState(() {
                   showSpinner = true;
                 });
+
+                UserCredential? newUser;
+
                 try {
-                  final newUser = await _auth.signInWithEmailAndPassword(
+                  newUser = await _auth.signInWithEmailAndPassword(
                       email: email!, password: password!);
-                  if (newUser != null) {
-                    Navigator.pushNamed(context, PostsScreen.id);
-                  }
-                  setState(() {
-                    showSpinner = false;
-                  });
                 } on FirebaseAuthException catch (e) {
-                  // Display something when auth error happens
-                  setState(() {
-                    showSpinner = false;
-                  });
+                  // This will catch any exception from the authentication only
+                  // Best ux practice is to display something when error happens
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(e.message ?? e.code),
                     ),
                   );
+                } finally {
+                  // This gets executed either when try failed or succeeded
+                  setState(() {
+                    showSpinner = false;
+                  });
+
+                  if (newUser != null) {
+                    Navigator.pushNamed(context, PostsScreen.id);
+                  }
                 }
               },
             )

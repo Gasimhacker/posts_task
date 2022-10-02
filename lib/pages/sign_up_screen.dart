@@ -64,26 +64,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 setState(() {
                   showSpinner = true;
                 });
-                try {
-                  final newUser = await _auth.createUserWithEmailAndPassword(
-                      email: email, password: password);
 
-                  if (newUser != null) {
-                    Navigator.pushNamed(context, PostsScreen.id);
-                  }
-                  setState(() {
-                    showSpinner = false;
-                  });
+                UserCredential? newUser;
+
+                try {
+                  newUser = await _auth.createUserWithEmailAndPassword(
+                      email: email, password: password);
                 } on FirebaseAuthException catch (e) {
-                  // Display something when auth error happens
-                  setState(() {
-                    showSpinner = false;
-                  });
+                  // This will catch any exception from the authentication only
+                  // Best ux practice is to display something when error happens
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(e.message ?? e.code),
                     ),
                   );
+                } finally {
+                  // This gets executed either when try failed or succeeded
+                  setState(() {
+                    showSpinner = false;
+                  });
+
+                  if (newUser != null) {
+                    Navigator.pushNamed(context, PostsScreen.id);
+                  }
                 }
               },
             )
