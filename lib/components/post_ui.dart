@@ -63,7 +63,7 @@ class _PostState extends State<Post> {
                 width: 8,
               ),
               AnonymousAvatar(
-                backgroundColor: KThemeColor,
+                backgroundColor: kThemeColor,
                 radius: 20,
                 iconColor: Colors.white,
               ),

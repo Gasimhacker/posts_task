@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: KThemeColor,
+      backgroundColor: kThemeColor,
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         child: Column(
@@ -35,9 +35,9 @@ class _LoginScreenState extends State<LoginScreen> {
             AnonymousAvatar(),
             SizedBox(height: 30),
             Padding(
-              padding: KTextFieldPadding,
+              padding: kTextFieldPadding,
               child: TextField(
-                decoration: KTextFieldDecoration.copyWith(
+                decoration: kTextFieldDecoration.copyWith(
                   hintText: 'Email Address',
                 ),
                 onChanged: (value) {
@@ -46,9 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             Padding(
-              padding: KTextFieldPadding,
+              padding: kTextFieldPadding,
               child: TextField(
-                decoration: KTextFieldDecoration.copyWith(
+                decoration: kTextFieldDecoration.copyWith(
                   hintText: 'Password',
                 ),
                 onChanged: (value) {

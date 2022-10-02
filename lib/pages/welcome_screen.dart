@@ -12,7 +12,7 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: KThemeColor,
+        backgroundColor: kThemeColor,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -24,7 +24,7 @@ class WelcomeScreen extends StatelessWidget {
             Center(
               child: Text(
                 'Welcome',
-                style: KWelcomeTextStyle,
+                style: kWelcomeTextStyle,
               ),
             ),
             SizedBox(

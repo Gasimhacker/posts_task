@@ -6,17 +6,17 @@ class AnonymousAvatar extends StatelessWidget {
   final Color? backgroundColor;
   final Color? iconColor;
 
-  AnonymousAvatar({this.radius, this.backgroundColor, this.iconColor});
+  const AnonymousAvatar({super.key, this.radius, this.backgroundColor, this.iconColor});
   @override
   Widget build(BuildContext context) {
     return Flexible(
       child: CircleAvatar(
-        radius: radius ?? KCircleAvatarRadius,
+        radius: radius ?? kCircleAvatarRadius,
         backgroundColor: backgroundColor ?? Colors.white,
         child: Icon(
-          size: radius ?? KCircleAvatarRadius,
+          size: radius ?? kCircleAvatarRadius,
           Icons.person,
-          color: iconColor ?? KThemeColor,
+          color: iconColor ?? kThemeColor,
         ),
       ),
     );

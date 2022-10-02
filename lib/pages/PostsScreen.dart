@@ -62,7 +62,7 @@ class _PostsScreenState extends State<PostsScreen> {
                           right: 0,
                         ),
                         title: 'Post',
-                        color: KThemeColor,
+                        color: kThemeColor,
                         onPressed: () async {
                           postController.clear();
                           await _fireStore.collection('postWithComments').add({

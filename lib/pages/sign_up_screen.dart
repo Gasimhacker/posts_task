@@ -21,7 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: KThemeColor,
+      backgroundColor: kThemeColor,
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         child: Column(
@@ -34,9 +34,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
             AnonymousAvatar(),
             SizedBox(height: 30),
             Padding(
-              padding: KTextFieldPadding,
+              padding: kTextFieldPadding,
               child: TextField(
-                decoration: KTextFieldDecoration.copyWith(
+                decoration: kTextFieldDecoration.copyWith(
                   hintText: 'Email Address',
                 ),
                 onChanged: (value) {
@@ -45,9 +45,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
             Padding(
-              padding: KTextFieldPadding,
+              padding: kTextFieldPadding,
               child: TextField(
-                decoration: KTextFieldDecoration.copyWith(
+                decoration: kTextFieldDecoration.copyWith(
                   hintText: 'Password',
                 ),
                 onChanged: (value) {
