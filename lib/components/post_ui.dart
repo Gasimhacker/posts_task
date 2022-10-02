@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:posts_task/constants.dart';
 import 'package:posts_task/components/anonymous_avatar.dart';
-import 'package:posts_task/components/comment_ui.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:posts_task/pages/comments_bottom_sheet.dart';
 
 final _fireStore = FirebaseFirestore.instance;
 User? loggedInUser;
@@ -104,57 +104,7 @@ class _PostState extends State<Post> {
                   if (snapshot.hasData) {
                     final numComments = snapshot.data!.size;
                     return GestureDetector(
-                      onTap: () {
-                        showModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              return StreamBuilder<QuerySnapshot>(
-                                  stream: _fireStore
-                                      .collectionGroup(widget.postId)
-                                      .snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      final commentsDocs = snapshot.data!.docs;
-                                      List<Comment> commentsList = [];
-                                      for (var commentDoc in commentsDocs) {
-                                        final Map commentMap =
-                                            commentDoc.data() as Map;
-                                        final commentContent =
-                                            commentMap['comment'];
-                                        final commenter =
-                                            commentMap['commenter'];
-                                        final commentId = commentDoc.id;
-
-                                        bool isDeleteCommentVisible = false;
-                                        if (commenter == loggedInUser!.email) {
-                                          isDeleteCommentVisible = true;
-                                        }
-                                        final commentWidget = Comment(
-                                          isDeleteCommentVisible:
-                                              isDeleteCommentVisible,
-                                          comment: commentContent,
-                                          commenter: commenter,
-                                          onDeleteCommentPressed: () {
-                                            _fireStore
-                                                .collection('postWithComments')
-                                                .doc(widget.postId)
-                                                .collection(widget.postId)
-                                                .doc(commentId)
-                                                .delete();
-                                          },
-                                        );
-                                        commentsList.add(commentWidget);
-                                      }
-                                      return ListView(
-                                        children: commentsList,
-                                      );
-                                    }
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  });
-                            });
-                      },
+                      onTap: _showCommentsBottomSheet,
                       child: Text(
                         '$numComments comments',
                         style: TextStyle(color: Colors.grey[600]),
@@ -206,6 +156,15 @@ class _PostState extends State<Post> {
           )
         ],
       ),
+    );
+  }
+
+  _showCommentsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return CommentsBottomSheet(postId: widget.postId);
+      },
     );
   }
 }
