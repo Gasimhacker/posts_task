@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:posts_task/constants.dart';
 import 'package:posts_task/components/anonymous_avatar.dart';
-import 'package:posts_task/components/comment_ui.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:posts_task/pages/comments_bottom_sheet.dart';
 
 final _fireStore = FirebaseFirestore.instance;
 User? loggedInUser;
@@ -31,18 +31,15 @@ class _PostState extends State<Post> {
   String comment = '';
 
   final _auth = FirebaseAuth.instance;
-  int numberOfComments = 0;
 
-  void getCurrentUser() async {
-    final user = await _auth.currentUser;
-    if (user != null) {
-      loggedInUser = user;
+  void getCurrentUser() {
+    if (_auth.currentUser != null) {
+      loggedInUser = _auth.currentUser;
     }
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getCurrentUser();
   }
@@ -54,38 +51,38 @@ class _PostState extends State<Post> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Row(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 8,
               ),
-              AnonymousAvatar(
-                backgroundColor: KThemeColor,
+              const AnonymousAvatar(
+                backgroundColor: kThemeColor,
                 radius: 20,
                 iconColor: Colors.white,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 5,
               ),
               Text(
                 widget.userName!,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               Visibility(
                 visible: widget.isDeletePostVisible,
                 child: IconButton(
                     onPressed: widget.onDeletePressed,
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.delete,
                       color: Colors.red,
                     )),
               )
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Padding(
@@ -93,72 +90,36 @@ class _PostState extends State<Post> {
             child: Text(
               widget.postContent!,
               textAlign: TextAlign.start,
-              style: TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              GestureDetector(
-                onTap: () {
-                  final Stream<QuerySnapshot> commentsStream =
-                      _fireStore.collectionGroup(widget.postId).snapshots();
-                  setState(() {}); //to update the number of comments
-                  showModalBottomSheet(
-                      context: context,
-                      builder: (context) {
-                        return StreamBuilder<QuerySnapshot>(
-                            stream: commentsStream,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                final commentsDocs = snapshot.data?.docs;
-                                numberOfComments = commentsDocs!.length;
-                                List<Comment> commentsList = [];
-                                for (var commentDoc in commentsDocs) {
-                                  final Map commentMap =
-                                      commentDoc.data() as Map;
-                                  final commentContent = commentMap['comment'];
-                                  final commenter = commentMap['commenter'];
-                                  final commentId = commentDoc.id;
-
-                                  bool isDeleteCommentVisible = false;
-                                  if (commenter == loggedInUser!.email) {
-                                    isDeleteCommentVisible = true;
-                                  }
-                                  final commentWidget = Comment(
-                                    isDeleteCommentVisible:
-                                        isDeleteCommentVisible,
-                                    comment: commentContent,
-                                    commenter: commenter,
-                                    onDeleteCommentPressed: () {
-                                      _fireStore
-                                          .collection('postWithComments')
-                                          .doc(widget.postId)
-                                          .collection(widget.postId)
-                                          .doc(commentId)
-                                          .delete();
-                                    },
-                                  );
-                                  commentsList.add(commentWidget);
-                                }
-                                return ListView(
-                                  children: commentsList,
-                                );
-                              }
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            });
-                      });
+              StreamBuilder(
+                stream: _fireStore.collectionGroup(widget.postId).snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final numComments = snapshot.data!.size;
+                    return GestureDetector(
+                      onTap: _showCommentsBottomSheet,
+                      child: Text(
+                        '$numComments comments',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    );
+                  } else {
+                    // if there's no data
+                    return Text(
+                      'no comments yet',
+                      style: TextStyle(color: Colors.grey[600]),
+                    );
+                  }
                 },
-                child: Text(
-                  '$numberOfComments comments',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
               )
             ],
           ),
-          Divider(
+          const Divider(
             thickness: 2,
           ),
           TextField(
@@ -166,7 +127,7 @@ class _PostState extends State<Post> {
             onChanged: (value) {
               comment = value;
             },
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Write a comment...',
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,
@@ -188,11 +149,20 @@ class _PostState extends State<Post> {
                       'commenter': loggedInUser?.email,
                     });
                   },
-                  icon: Icon(Icons.send)),
+                  icon: const Icon(Icons.send)),
             ],
           )
         ],
       ),
+    );
+  }
+
+  _showCommentsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return CommentsBottomSheet(postId: widget.postId);
+      },
     );
   }
 }

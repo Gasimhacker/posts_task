@@ -12,22 +12,22 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: KThemeColor,
+        backgroundColor: kThemeColor,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 60,
             ),
-            AnonymousAvatar(),
-            Center(
+            const AnonymousAvatar(),
+            const Center(
               child: Text(
                 'Welcome',
-                style: KWelcomeTextStyle,
+                style: kWelcomeTextStyle,
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             LoginRegisterButton(

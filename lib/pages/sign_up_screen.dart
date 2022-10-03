@@ -21,22 +21,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: KThemeColor,
+      backgroundColor: kThemeColor,
       body: ModalProgressHUD(
         inAsyncCall: showSpinner,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 60,
             ),
-            AnonymousAvatar(),
-            SizedBox(height: 30),
+            const AnonymousAvatar(),
+            const SizedBox(height: 30),
             Padding(
-              padding: KTextFieldPadding,
+              padding: kTextFieldPadding,
               child: TextField(
-                decoration: KTextFieldDecoration.copyWith(
+                decoration: kTextFieldDecoration.copyWith(
                   hintText: 'Email Address',
                 ),
                 onChanged: (value) {
@@ -45,9 +45,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
             Padding(
-              padding: KTextFieldPadding,
+              padding: kTextFieldPadding,
               child: TextField(
-                decoration: KTextFieldDecoration.copyWith(
+                decoration: kTextFieldDecoration.copyWith(
                   hintText: 'Password',
                 ),
                 onChanged: (value) {
@@ -59,23 +59,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
             LoginRegisterButton(
               route: PostsScreen.id,
               title: 'Sign up',
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 90),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 90),
               onPressed: () async {
                 setState(() {
                   showSpinner = true;
                 });
+
+                UserCredential? newUser;
+
                 try {
-                  final newUser = await _auth.createUserWithEmailAndPassword(
+                  newUser = await _auth.createUserWithEmailAndPassword(
                       email: email, password: password);
+                } on FirebaseAuthException catch (e) {
+                  // This will catch any exception from the authentication only
+                  // Best ux practice is to display something when error happens
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(e.message ?? e.code),
+                    ),
+                  );
+                } finally {
+                  // This gets executed either when try failed or succeeded
+                  setState(() {
+                    showSpinner = false;
+                  });
 
                   if (newUser != null) {
                     Navigator.pushNamed(context, PostsScreen.id);
                   }
-                  setState(() {
-                    showSpinner = false;
-                  });
-                } catch (e) {
-                  print(e);
                 }
               },
             )

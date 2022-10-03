@@ -16,9 +16,9 @@ class LoginRegisterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: padding ?? EdgeInsets.only(left: 20.0, right: 20, top: 20),
+      padding: padding ?? const EdgeInsets.only(left: 20.0, right: 20, top: 20),
       child: MaterialButton(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         onPressed: () {
           if (onPressed == null) {
             Navigator.pushNamed(context, route!);
@@ -26,7 +26,7 @@ class LoginRegisterButton extends StatelessWidget {
             onPressed!();
           }
         },
-        color: color ?? Color(0xffFCB547),
+        color: color ?? const Color(0xffFCB547),
         child: Text(title),
       ),
     );
