@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 class LoginRegisterButton extends StatelessWidget {
-  String? route;
-  String title;
-  Function()? onPressed;
-  EdgeInsets? padding;
-  Color? color;
-  LoginRegisterButton(
-      {this.route,
+  final String? route;
+  final String title;
+  final Function()? onPressed;
+  final EdgeInsets? padding;
+  final Color? color;
+  const LoginRegisterButton(
+      {super.key,
+      this.route,
       required this.title,
       this.onPressed,
       this.padding,

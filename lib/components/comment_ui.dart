@@ -5,8 +5,9 @@ class Comment extends StatelessWidget {
   final String comment;
   final Function() onDeleteCommentPressed;
   final bool isDeleteCommentVisible;
-  Comment(
-      {required this.commenter,
+  const Comment(
+      {super.key,
+      required this.commenter,
       required this.comment,
       required this.onDeleteCommentPressed,
       required this.isDeleteCommentVisible});

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:posts_task/constants.dart';
 import 'package:posts_task/components/anonymous_avatar.dart';
 import 'package:posts_task/components/login_register.dart';
-import 'package:posts_task/pages/PostsScreen.dart';
+import 'package:posts_task/pages/posts_screen.dart';
+import 'package:posts_task/spinner.dart';
+import 'package:posts_task/repo/auth.dart';
+import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const String id = 'SignUpScreen';
+
+  const SignUpScreen({super.key});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -17,13 +21,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool showSpinner = false;
   String email = '';
   String password = '';
-  final _auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kThemeColor,
       body: ModalProgressHUD(
-        inAsyncCall: showSpinner,
+        inAsyncCall: Provider.of<Spinner>(context).isSpinning,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -60,34 +63,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
               route: PostsScreen.id,
               title: 'Sign up',
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 90),
-              onPressed: () async {
-                setState(() {
-                  showSpinner = true;
-                });
-
-                UserCredential? newUser;
-
-                try {
-                  newUser = await _auth.createUserWithEmailAndPassword(
-                      email: email, password: password);
-                } on FirebaseAuthException catch (e) {
-                  // This will catch any exception from the authentication only
-                  // Best ux practice is to display something when error happens
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(e.message ?? e.code),
-                    ),
-                  );
-                } finally {
-                  // This gets executed either when try failed or succeeded
-                  setState(() {
-                    showSpinner = false;
-                  });
-
-                  if (newUser != null) {
-                    Navigator.pushNamed(context, PostsScreen.id);
-                  }
-                }
+              onPressed: () {
+                CreateAndSignUser().createUser(
+                  email,
+                  password,
+                  context,
+                );
               },
             )
           ],

@@ -8,6 +8,8 @@ import 'package:posts_task/components/anonymous_avatar.dart';
 class WelcomeScreen extends StatelessWidget {
   static const String id = 'welcomeScreen';
 
+  const WelcomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -16,18 +18,18 @@ class WelcomeScreen extends StatelessWidget {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(
+          children: const [
+            SizedBox(
               height: 60,
             ),
-            const AnonymousAvatar(),
-            const Center(
+            AnonymousAvatar(),
+            Center(
               child: Text(
                 'Welcome',
                 style: kWelcomeTextStyle,
               ),
             ),
-            const SizedBox(
+            SizedBox(
               height: 30,
             ),
             LoginRegisterButton(

@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:posts_task/constants.dart';
 import 'package:posts_task/components/anonymous_avatar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:posts_task/pages/comments_bottom_sheet.dart';
+import 'package:posts_task/repo/auth.dart';
+import 'package:posts_task/repo/comments.dart';
 
 final _fireStore = FirebaseFirestore.instance;
-User? loggedInUser;
 
 class Post extends StatefulWidget {
   final String? postContent;
@@ -14,8 +14,9 @@ class Post extends StatefulWidget {
   final Function()? onDeletePressed;
   final String postId;
   final bool isDeletePostVisible;
-  Post(
-      {this.postContent,
+  const Post(
+      {super.key,
+      this.postContent,
       this.userName,
       this.onDeletePressed,
       required this.postId,
@@ -27,21 +28,13 @@ class Post extends StatefulWidget {
 
 class _PostState extends State<Post> {
   final commentController = TextEditingController();
-
+  User? loggedInUser;
   String comment = '';
-
-  final _auth = FirebaseAuth.instance;
-
-  void getCurrentUser() {
-    if (_auth.currentUser != null) {
-      loggedInUser = _auth.currentUser;
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    getCurrentUser();
+    loggedInUser = CreateAndSignUser().getCurrentUser();
   }
 
   @override
@@ -102,7 +95,21 @@ class _PostState extends State<Post> {
                   if (snapshot.hasData) {
                     final numComments = snapshot.data!.size;
                     return GestureDetector(
-                      onTap: _showCommentsBottomSheet,
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collectionGroup(widget.postId)
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  return CommentsFunctionality()
+                                      .showComments(snapshot, widget.postId);
+                                });
+                          },
+                        );
+                      },
                       child: Text(
                         '$numComments comments',
                         style: TextStyle(color: Colors.grey[600]),
@@ -140,29 +147,14 @@ class _PostState extends State<Post> {
               IconButton(
                   onPressed: () async {
                     commentController.clear();
-                    await _fireStore
-                        .collection('postWithComments')
-                        .doc(widget.postId)
-                        .collection(widget.postId)
-                        .add({
-                      'comment': comment,
-                      'commenter': loggedInUser?.email,
-                    });
+                    await CommentsFunctionality()
+                        .addComment(comment, widget.postId);
                   },
                   icon: const Icon(Icons.send)),
             ],
           )
         ],
       ),
-    );
-  }
-
-  _showCommentsBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return CommentsBottomSheet(postId: widget.postId);
-      },
     );
   }
 }
